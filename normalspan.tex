@@ -1,0 +1,493 @@
+\documentclass{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{hyperref}
+\usepackage{geometry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsthm}
+\makeatletter
+\def\th@definition{%
+  \thm@notefont{}% same as heading font
+  \normalfont % body font
+}
+\makeatother
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{problem}{Problem}
+\newtheorem{defn}{Definition}
+\newtheorem{note}{Note}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DeclareMathOperator*{\affspan}{aff}
+\DeclareMathOperator*{\vecspan}{span}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\erf}{erf}
+
+\DeclareMathOperator*{\tr}{tr}
+
+\DeclareMathOperator*{\Eop}{\mathbb{E}}
+\newcommand{\E}[1]{\ensuremath{\Eop\left[{#1}\right]}}
+
+\DeclareMathOperator*{\probop}{Pr}
+\newcommand{\prob}[1]{\ensuremath{\probop\left[{#1}\right]}}
+
+\newcommand{\proj}[1]{\ensuremath{\pi}_{#1}}
+\newcommand{\ltwo}[1]{\lVert{#1}\rVert}
+\newcommand{\lone}[1]{\lVert{#1}\rVert_1}
+
+\newcommand{\law}{\ensuremath{\xrightarrow{L}}}
+\newcommand{\normal}[2]{\ensuremath{\mathcal{N}\left({{#1}},{{#2}}\right)}}
+\newcommand{\trans}[1]{\ensuremath{{#1}^{\mathsf{T}}}}
+\newcommand{\comp}[1]{\ensuremath{{#1}^\bot}}
+\newcommand{\zero}{\mathbf{0}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\uu}{\mathbf{u}}
+
+\newcommand{\Tau}{\mathrm{T}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{filecontents}{paper.bib}
+@article{hsu2012tail,
+  title={A tail inequality for quadratic forms of subgaussian random vectors},
+  author={Hsu, Daniel and Kakade, Sham M and Zhang, Tong and others},
+  journal={Electron. Commun. Probab},
+  volume={17},
+  number={52},
+  pages={1--6},
+  year={2012}
+}
+
+@article{dasgupta2003elementary,
+  title={An elementary proof of a theorem of Johnson and Lindenstrauss},
+  author={Dasgupta, Sanjoy and Gupta, Anupam},
+  journal={Random Structures \& Algorithms},
+  volume={22},
+  number={1},
+  pages={60--65},
+  year={2003},
+  publisher={Wiley Online Library}
+}
+
+\end{filecontents}
+\immediate\write18{bibtex paper}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Bounding the distance to a Gaussian affine subspace}
+\author{Mike Izbicki}
+
+\begin{document}
+\maketitle
+%\begin{center}
+%\Large
+%Bounding the distance to Gaussian affine subspaces
+%\end{center}
+
+Let $X=\{\x_1,...,\x_m\}$ be a set of independent, normally distributed random vectors with zero mean and covariance $\Sigma$.
+We are interested in the distance from the affine hull of $X$ to an arbitrary point $\w$.
+Specifically, we want to bound the distance as a function of $m$ and the eigenvalues of $\Sigma$.
+
+We first focus on the less general result where $\w$ is the origin.
+When $m=1$, the problem is equivalent to bounding the norm of a Gaussian random variable.
+For $m>1$, our proof strategy will be to reduce the problem to finding the norm of a Gaussian random variable in a smaller dimensional space.
+This simpler problem can be solved using the following lemma.
+%This distance will naturally increase as the dimension $d$ of the space increases,
+%but this effect will be accounted for in the eigenvalues of $\Sigma$.
+\begin{lemma}[\cite{hsu2012tail}]
+\label{lemma:hsu}
+Let $A \in \mathbb{R}^{n\times n}$ be a matrix,
+and let $\Sigma = \trans A A$.
+Let $\z$ be an isotropic multivariate Gaussian random vector with zero mean.
+For all $t>0$,
+\begin{equation}
+\prob{\ltwo{A\z}^2 > \tr{\Sigma} + 2\sqrt{\tr (\Sigma^2)t} + 2\ltwo{\Sigma}t} \le e^{-t}
+\end{equation}
+\end{lemma}
+
+%We will use the following notation.
+%The affine hull of a set $Y$ is the set
+%\begin{equation}
+%\affspan{Y}=\left\{\sum_{i=1}^k \alpha_i\y_i : k>0, \alpha\in\mathbb{R},\y_i\in Y, \sum_{i=1}^k\alpha_i = 1 \right\}
+%\end{equation}
+%The projection of a vector $\z$ onto a set $Y$ is the vector
+%\begin{equation}
+%\proj{Y}\z = \argmin_{\y\in Y} \ltwo{\y-\z}
+%\end{equation}
+%If $A$ is an operator, then the set $AY = \{A\y : \y \in Y\}$.
+%Finally, if $U$ is a vector space, we denote the orthogonal complement by $\comp U$.
+
+%Our first result is a less general bound on the distance from the affine hull of $X$ to the origin.
+%The proof of this simpler theorem illustrates the main ideas of the more general case with fewer distracting technical details.
+
+\begin{theorem}
+\label{thm:center}
+Let $A \in \mathbb{R}^{d\times d}$ be a matrix,
+and let $\Sigma = \trans A A$.
+Let $X=\{\x_1,...,\x_m\}$ be a sequence of $m>2$ random $d$-dimensional vectors sampled independently from the isotropic normal distribution,
+and let $H=\affspan X$.
+Let $B\in\mathbb{R}^{d\times d-m-2}$ be a matrix whose column space is the orthogonal complement of $\vecspan \{\x_1,...,\x_{m-1}\}$,
+and let $\Tau = \trans{[\trans B,\trans\w_m]}\Sigma[B,\w_m]$.
+Then for all $t>0$,
+\begin{equation}
+\label{eq:thm1a}
+\prob{\ltwo{\proj{AH}\zero}^2
+>
+\tr \Tau + 2\sqrt{\tr \Tau t} + 2\ltwo{\Tau}t} \le e^{-t}
+\end{equation}
+Interpreting Equation \ref{eq:thm1a} is slightly tricky because $\Tau$ is a random variable.
+As an immediate consequence, we have the following easier to interpret, but less sharp bound.
+Denote by $\sigma_i$ the eigenvectors of $\Sigma$ in decreasing order.
+For all $t>0$,
+\begin{equation}
+\prob{\ltwo{\proj{AH}\zero}^2 > \sum_{i=1}^{d-m-2}\sigma_i + 2\sqrt{\sum_{i=1}^{d-m-2}\sigma_i^2t} + 2\sigma_1t} \le e^{-t}
+\end{equation}
+\end{theorem}
+
+\noindent
+
+%\begin{proof}[Proof of Theorem \ref{thm:center}]
+\begin{proof}
+The idea is to construct an isotropic normal random vector $\z$ of dimension $d-m-2$ such that $\ltwo{\proj{AH}\zero} \le \ltwo {A\z} $.
+%(The dimension of $\z$ is why we need the $d>m>2$ restriction.)
+%Then apply the following lemma to bound $\ltwo {A\z}$.
+Then apply Lemma $\ref{lemma:hsu}$ to $\z$.
+
+Fix $\x_1,...,\x_{m-1}$.
+Let $G=\affspan\{\x_1,...,\x_{m-1}\}$ and $U=\vecspan G$.
+Define
+$
+\z
+=
+\x_m +\proj{G}\zero-\proj{G}\proj{U}\x_m
+$.
+Since $G\subseteq H$, we have that the vector $\proj{G}\zero-\proj{G}\proj{U}\x_m\in H$,
+so $\z\in H$ and $A\z\in AH$.
+Then by the definition of $\proj{AH}$, we have that $\ltwo {\proj{AH}\zero}\le\ltwo{A\z}$.
+
+To bound $\ltwo{A\z}$, we split $\z$ into two terms as $\z=\y+\proj{\comp U}\w_m$, where $\y=\proj{U}\x_m+\proj{G}\zero-\proj{G}\proj{U}\x_m$.
+By construction, we have that $\y\in\vecspan{\proj{G}\zero}$.
+The $\vecspan{\proj{G}\zero}$ is one dimensional, so $\y$ is distributed as a one dimensional standard Gaussian.
+We also have that $\proj{\comp U}\w_m$ is a $d-m-1$ dimensional isotropic Gaussian,
+and that $\proj{\comp U}\w_m$ is orthogonal to $\y$.
+Therefore, $\z$ is a $d-m+2$ dimensional isotropic Gaussian.
+\end{proof}
+
+%\begin{proof}[Proof of Theorem \ref{thm:center}]
+%Fix $\x_1,...,\x_{m-1}$.
+%Let $G=\affspan\{A\x_1,...,A\x_{m-1}\}$,
+%$U=\vecspan G$,
+%and $U^*=\vecspan\{\proj{G}\zero\}\subseteq U$.
+%We have by construction that for any vector $\x\in U-G$,
+%the vector $\x-\proj{G}\x \in U^*$.
+%We also have that with probability 1, the vector $\proj{U}\x_m\in U-G$.
+%Therefore, the vector $\y=\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero \in U^*$.
+%%Define the vector $\y=\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero$.
+%%We have that $\prog{G}\proj{U}\x_m=
+%%The space $U^*$ is one dimensional, so $\y$ is distributed as a univariate normal distribution.
+%The vector $\y$ is a linear combination of zero-mean Gaussian random variables,
+%so $\y$ is also a zero-mean Gaussian random variable.
+%In particular, since $U^*$ is a one dimensional space,
+%$\y$ is distributed as a univariate zero-mean Gaussian.
+%%In particular, since $U^*$ is the one dimensional subspace spanned by $\proj{G}\zero$,
+%%%we can write $\y=\alpha\frac{\proj{G}\zero}{\ltwo{\proj{G}\zero}}$ where
+%%we can write $\y=\alpha{\proj{G}\zero}/{\ltwo{\proj{G}\zero}}$ where
+%%$\alpha$ is a zero-mean univariate Gaussian.
+%
+%%Now define the vector $\z=\y+\proj{\comp U}\x_m$.
+%Now define the vector
+%\begin{align}
+%\z
+%& =
+%\y+\proj{\comp U}\x_m
+%\\
+%& =
+%\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero+\proj{\comp U}\x_m
+%\\
+%&=
+%\x_m -\proj{G}\proj{U}\x_m+\proj{G}\zero
+%\end{align}
+%Since $G\subseteq H$, we have that $\z\in H$.
+%Then by the definition of $\proj{H}$, we have that $\ltwo{\proj{H}\zero} \le \ltwo{\z}$.
+%Since the space $U^*$ is orthogonal to $\comp U$,
+%the vectors $y$ and $\proj{\comp U}\x_m$ are independent.
+%Since $\y$ is a one dimensional Gaussian,
+%and $\proj{\comp U}\x_m$ is $d-m+1$ dimensional Gaussian independent of $\y$,
+%$\z$ is a $d-m+2$ dimensional Gaussian.
+%The direction $\z/\ltwo \z$ is chosen uniformly from
+%\end{proof}
+
+\newpage
+
+\begin{lemma}[\cite{dasgupta2003elementary}]
+\label{lemma:dasgupta}
+Let $X_1,...,X_d$ be $d$ independent Gaussian \normal{0}{1} random variables,
+and let $Y=\frac{1}{|X|}(X_1,...,X_d)$.
+Let the vector $Z\in\mathbb{R}^k$ be the projection of $Y$ onto its first $k$ coordinates,
+and let $L=|Z|^2$.
+Clearly, $\E{L}=k/d$.
+If $k<d$, then
+\begin{enumerate}
+\item If $\beta < 1$, then
+\begin{equation}
+\prob{L \le \frac{\beta k}{d}}
+\le
+\beta^{k/2}\left(1+\frac{(1-\beta)k}{d-k}\right)^{(d-k)/2}
+\le
+\exp \left( \frac{k}{2} (1-\beta+\ln \beta) \right)
+\end{equation}
+\item If $\beta > 1$, then
+\begin{equation}
+\prob{L \ge \frac{\beta k}{d}}
+\le
+\beta^{k/2}\left(1+\frac{(1-\beta)k}{d-k}\right)^{(d-k)/2}
+\le
+\exp \left( \frac{k}{2} (1-\beta+\ln \beta) \right)
+\end{equation}
+\end{enumerate}
+\end{lemma}
+
+
+\begin{lemma}
+Let $\w^*$ be an arbitrary $d$ dimensional vector,
+and $\w_1,...,\w_m$ be a sequence of $m>2$ random $d$-dimensional vectors sampled independently from the isotropic normal distribution.
+Define $H= \left\{\sum_{i=1}^m \alpha_i\w_i : \sum_{i=1}^m\alpha_i = 1 \right\}$ to be the smallest hyperplane containing $\w_1,...,\w_m$.
+Then for all $\beta>1$ and $t>0$,
+%\begin{equation}
+%\prob{h^2 < d - m + 2 + 2\sqrt{(d - m + 2)t} + 2t}  \ge 1-e^{-t}
+%\end{equation}
+%Let $\w_i \sim \normal{0}{I}$ be a sequence of $m$ independent $d$ dimensional random vectors,
+%and let $\hat\w$ be an arbitrary point.
+%Define $H= \left\{\sum_{i=1}^m \alpha_i\w_i : \sum_{i=1}^m\alpha_i = 1 \right\}$ to be the smallest hyperplane containing all of the $\w_i$s.
+%Then,
+\begin{multline}
+\prob{
+    |\w^*-\proj{H}\w^*|^2 \le
+    |\w^*|\left(1-\left(\frac{\beta m}{d}\right)\right)
+    +
+    d - m + 2 + 2\sqrt{(d - m + 2)t} + 2t
+}
+\\
+\ge
+(1-e^{-t})
+\erf\left(\frac{\beta m}{d}\right)
+\left(1 - \exp\left(\frac{m}{2}(1-\beta+\ln\beta)\right)\right)^2
+\end{multline}
+\end{lemma}
+\begin{proof}
+Fix $\w_1,...,\w_{m-1}$.
+Let $G$ be the smallest hyperplane containing $\w_1,...,\w_{m-1}$,
+and $U$ be the corresponding vector subspace.
+We have that %by the triangle inequality
+\begin{align}
+|\w^* - \proj{H}\w^*|
+& \le |\w^* - \proj{H}\proj{U}\w^*| & \text{by definition of $\proj{H}$}\\
+& \le |\w^* - \proj{U}\w^*| + |\proj{U}\w^* - \proj{H}\proj{U}\w^*| &\text{by triangle ineq.}
+\end{align}
+We will bound each of these terms separately.
+
+We begin with the first term by noting that the vectors $(\w^* - \proj{U}\w^*)$ and $\proj{U}\w^*$ are orthogonal.
+This lets us use the Pythagorean theorem to conclude that
+\begin{align}
+\label{eq:pythagorean}
+|\w^*-\proj{U}\w^*|
+= \sqrt{|\w^*|^2 - |\proj{U}\w^*|^2}
+\end{align}
+%We will now apply Lemma \ref{lemma:dasgupta} to $\proj{U}\w^*$.
+The vector $\proj{U}\w^*$ is a fixed vector projected onto a random subspace,
+which has the same distribution as a random vector projected onto a fixed subspace.
+Therefore, we can apply Lemma \ref{lemma:dasgupta} to get
+\begin{equation}
+\label{eq:puwstar}
+\prob{
+    |\proj{U}\w^*|
+    \le
+    |\w^*|\left(\frac{\beta m}{d}\right)
+}
+\ge
+1 - \exp\left(\frac{m}{2}(1-\beta+\ln\beta)\right)
+\end{equation}
+Combining Equations \ref{eq:pythagorean} and \ref{eq:puwstar} gives
+\begin{equation}
+\prob{
+    |\w^*-\proj{U}\w^*|
+    \le
+    |\w^*|\left(1-\left(\frac{\beta m}{d}\right)\right)
+}
+\ge
+1 - \exp\left(\frac{m}{2}(1-\beta+\ln\beta)\right)
+\end{equation}
+
+Now for the second term.
+Define the line $U^* = \{\alpha\proj{U}\w^* + (1-\alpha)\proj{G}\proj{U}\w^*\}$,
+and the point $\x = \proj{U}\w_m - \proj{G}\proj{U}\w_m+ \proj{G}\w^*$.
+By construction, we have that $\x\in U^*$ and $\x+\proj{\comp U}\w_m\in H$.
+\begin{align}
+|\proj{U}\w^* - \proj{H}\proj{U}\w^*|
+&\le
+|\proj{U}\w^* - \proj{H}\x|
+&\text{by definition of $\proj{H}$}
+\\
+|\proj{U}\w^* - \proj{H}\proj{U}\w^*|^2
+&=
+|\proj{U}\w^*-\x|^2 + |\x-\proj{H}\x|^2
+&\text{by Pythagorean theorem}
+%&\le
+%|\proj{U}\w^*-\x| + |\x-\proj{H}\x|
+%&\text{by triangle ineq.}
+\\
+&\le
+%|\proj{U}\w^*-\x| + |\x-(\x+\proj{\comp U}\w_m)|
+|\proj{U}\w^*-\x|^2 + |\x-(\x+\proj{\comp U}\w_m)|^2
+&\text{by definition of $\proj{H}$}
+\\
+&=
+%|\proj{U}\w^*-\x| + |\proj{\comp U}\w_m|
+|\proj{U}\w^*-\x|^2 + |\proj{\comp U}\w_m|^2
+\label{eq:bound}
+\end{align}
+%Therefore,
+%then
+%Therefore, the Pythagorean theorem gives
+%\begin{equation}
+%|\proj{U}\w^* - \proj{H}\proj{U}\w^*|
+%=
+%\sqrt{|x-\proj{U}\w^*|^2 + |\proj{\comp U}\w_m|^2}
+%\end{equation}
+%If both vectors in Equation \ref{eq:bound} above were normally distributed,
+%we could finish by applying Lemma \ref{lemma:hsu}.
+The right vector above is normally distributed,
+but the left vector is not.
+Our strategy will be to bound the left vector in probability by a normally distributed vector,
+then apply Lemma \ref{lemma:hsu} to the result.
+%The right vector is normally distributed and can be bounded using Lemma \ref{lemma:hsu}.
+%For the left vector, our strategy is to replace it with a vector that is normally distributed with high probability.
+In particular,
+$|\proj{U^*}\zero -\x|$ has a standard normal distribution,
+and $|\proj{U^*}\zero -\x| \ge |\x - \proj{U}\w^*|$
+whenever $|\proj{U^*}\zero -\x| \ge |\proj{U*}\zero - \proj{U}\w^*|$.
+By the definition of a normal distribution, we have
+\begin{align}
+\label{eq:erf}
+\prob{|\proj{U^*}\zero - \x| \ge \frac{\beta m}{d}}
+\ge
+\erf\left(\frac{\beta m}{d}\right)
+\end{align}
+Furthermore, we have that $|\proj{U^*}\zero - \proj{U}\w^*| \le |\proj{U}\w^*|$,
+which is upper bounded in probability by Equation \ref{eq:puwstar}.
+Combining Equations \ref{eq:puwstar}, \ref{eq:bound}, and \ref{eq:erf} gives:
+\begin{multline}
+\prob{
+    |\proj{U}\w^* - \proj{H}\proj{U}\w^*|^2
+    \le
+    |\proj{U}\w^*-\x|^2 + |\proj{\comp U}\w_m|^2
+}
+\\
+\ge
+\erf\left(\frac{\beta m}{d}\right)
+\left(1 - \exp\left(\frac{m}{2}(1-\beta+\ln\beta)\right)\right)
+\label{eq:almostdone}
+\end{multline}
+Now combining Equation \ref{eq:almostdone} above with Lemma \ref{lemma:hsu} gives our final bound on the right hand term:
+\begin{multline}
+\prob{
+    |\proj{U}\w^* - \proj{H}\proj{U}\w^*|^2
+    \le
+    d - m + 2 + 2\sqrt{(d - m + 2)t} + 2t
+}
+\\
+\ge
+(1-e^{-t})
+\erf\left(\frac{\beta m}{d}\right)
+\left(1 - \exp\left(\frac{m}{2}(1-\beta+\ln\beta)\right)\right)
+\end{multline}
+%\begin{align*}
+%\prob{|\proj{U^*}\zero - \proj{U}\w^*| \ge k|} \ge \\
+%\end{align*}
+
+%and $U^* = \vecspan\{\proj{G}\zero\}$.
+%Define the point $\x = \proj{U}\w_m - \proj{G}\proj{U}\w_m+ \proj{G}\zero$.
+%The vector $\proj{U}\w_m - \proj{G}\proj{U}\w_m$ is in $U^*$,
+%so $\x$ is also in $U^*$.
+%Since $U^*$ is a line whose direction is independent of $\x$,
+%$\x$ is distributed according to a one dimensional standard normal distribution.
+%Also by construction, we have that $\x+\proj{\comp U}\w_m \in H$.
+%This implies that $h < |\x + \proj{\comp U}\w_m|$.
+%This vector has dimension $d - m + 2$ and an isotropic normal distribution.
+%Applying Lemma \ref{lemma:hsu} gives the result.
+
+%Let $U$ be the space spanned by $\w_1,...,\w_{m-1}$,
+%and $\uu_1,...,\uu_{m-1}$ be an orthogonal basis for $U$.
+%For each $\uu_i$, define the line $G_i = \{ \alpha \w_m + (1-\alpha)\uu_i \}$.
+%%Let $V$ be the complement space,
+%%We can uniquely decompose $\w_m$ into $\w_U + \w_V$, where $\w_U \in U$ and $\w_V \in V$.
+%We have that for each $i$,
+%\begin{align}
+%|\hat\w - \proj{H}\hat\w|
+%&\le |\hat\w - \proj{G_i}\hat\w| &\text{because $G_i \subseteq H$} \\
+%&\le |\hat\w - \proj{G_i}\proj{U}\hat\w| &\text{by the definition of $\proj{G_i}$}\\
+%&\le |\hat\w - \proj{U}\hat\w| + |\proj{U}\hat\w-\proj{G_i}\proj{U}\hat\w| &\text{by triangle inequality}
+%\end{align}
+%We now bound the two terms separately.
+%
+%We begin with the first term by noting that the vectors $(\hat\w - \proj{U}\hat\w)$ and $\proj{U}\hat\w$ are orthogonal.
+%This lets us use the Pythagorean theorem to conclude that
+%\begin{align}
+%\label{eq:pythagorean}
+%|\hat\w-\proj{U}\hat\w|
+%= \sqrt{|\hat\w|^2 - |\proj{U}\hat\w|^2}
+%\end{align}
+%%We will now apply Lemma \ref{lemma:dasgupta} to $\proj{U}\hat\w$.
+%The vector $\proj{U}\hat\w$ is a fixed vector projected onto a random subspace,
+%which has the same distribution as a random vector projected onto a fixed subspace.
+%Therefore, we can apply Lemma \ref{lemma:dasgupta} to bound $|\proj{U}\hat\w|$.
+%Substituting into Equation \ref{eq:pythagorean} gives
+%\begin{align}
+%|\hat\w-\proj{U}\hat\w|
+%%= \sqrt{|\hat\w|^2 - |\proj{U}\hat\w|^2}
+%\le \sqrt{|\hat\w|^2 - \left(\frac{\beta m}{d}|\hat\w|\right)^2}
+%= |\hat\w|\left(1-\left(\frac{\beta m}{d}\right)\right)
+%\end{align}
+%for $\beta\ge1$ with probability at least $1-\exp\left(\frac{k}{2}(1-\beta+\ln\beta)\right)$.
+%Applying the Pythagorean theorem and Lemma \ref{lemma:dasgupta} to the first term gives
+%\begin{align}
+%|\hat\w-\proj{U}\hat\w|
+%= \sqrt{|\hat\w|^2 - |\proj{U}\hat\w|^2}
+%\le \sqrt{|\hat\w|^2 - \left(\frac{\beta m}{d}|\hat\w|\right)^2}
+%= |\hat\w|\left(1-\left(\frac{\beta m}{d}\right)\right)
+%\end{align}
+%with probability at least $1-\exp(\frac{k}{2}(1-\beta+\ln\beta))$.
+
+%Now for the second term.
+%Denote by $V$ the orthogonal complement of $U$.
+%The vector $\w_m$ can be uniquely decomposed into $\w_U + \w_V$,
+%where $\w_U\in U$ and $\w_V \in V$.
+%%For the second term, observe that if $|\w_{\uu_i} - \uu_i| > |\proj{U}\hat\w-\uu_i|$
+%\begin{align}
+%|\proj{U}\hat\w-\proj{G_i}\proj{U}\hat\w|
+%&\le
+%|\proj{U_i}\hat\w-\proj{G_i}\proj{U}\hat\w|
+%&\text{by definition of $\proj{U}$}
+%\\
+%&\le
+%|\w_{U_i} - \proj{G_i}\w_{U_i}|
+%&\text{by similarity of triangles}
+%\end{align}
+\end{proof}
+
+\bibliographystyle{plain}
+\bibliography{paper}
+
+\end{document}
+
+
