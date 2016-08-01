@@ -45,6 +45,7 @@
 \newcommand{\law}{\ensuremath{\xrightarrow{L}}}
 \newcommand{\normal}[2]{\ensuremath{\mathcal{N}\left({{#1}},{{#2}}\right)}}
 \newcommand{\trans}[1]{\ensuremath{{#1}^{\mathsf{T}}}}
+\newcommand{\rminv}[1]{\ensuremath{{#1}^{\mathsf{+}}}}
 \newcommand{\comp}[1]{\ensuremath{{#1}^\bot}}
 \newcommand{\zero}{\mathbf{0}}
 \newcommand{\w}{\mathbf{w}}
@@ -89,143 +90,108 @@
 
 \begin{document}
 \maketitle
-%\begin{center}
-%\Large
-%Bounding the distance to Gaussian affine subspaces
-%\end{center}
 
-Let $X=\{\x_1,...,\x_m\}$ be a set of independent, normally distributed random vectors with zero mean and covariance $\Sigma$.
-We are interested in the distance from the affine hull of $X$ to an arbitrary point $\w$.
-Specifically, we want to bound the distance as a function of $m$ and the eigenvalues of $\Sigma$.
+Let $X \in \mathbb{R}^{d\times m}$ be a random matrix whose entries are distributed according to the standard normal distribution.
+Let $A \in \mathbb{R}^{d\times d}$ be an arbitrary matrix,
+and $\Sigma=\trans A A$.
+Then $A X$ is a matrix whose columns are multivariate normal random vectors with zero mean and covariance $\Sigma$.
+We are interested in the distance from the affine hull of the columns of $AX$ to an arbitrary point $\w \in \mathbb{R}^d$.
+Specifically, we want to bound this distance as a function of $m$ and the eigenvalues of $\Sigma$.
 
-We first focus on the less general result where $\w$ is the origin.
-When $m=1$, the problem is equivalent to bounding the norm of a Gaussian random variable.
-For $m>1$, our proof strategy will be to reduce the problem to finding the norm of a Gaussian random variable in a smaller dimensional space.
-This simpler problem can be solved using the following lemma.
-%This distance will naturally increase as the dimension $d$ of the space increases,
-%but this effect will be accounted for in the eigenvalues of $\Sigma$.
+We use the following notation.
+Denote by $\x_i$ the $i$th column of the matrix $X$ and $X_i=(\x_1,...,\x_i)$ the matrix consisting of the first $i$ columns of $X$.
+Denote by $V_i$ the span of the columns of $X_i$ and by $H_i$ the affine hull of the columns of $X_i$.
+That is,
+\begin{equation}
+H_i = \affspan\{\x_1,...,\x_i\}=\left\{\sum_{j=1}^i \alpha_j\x_j : \alpha\in\mathbb{R},\sum_{j=1}^i\alpha_j = 1 \right\}
+\end{equation}
+The projection of a vector $\z$ onto a set $Y$ is the vector
+\begin{equation}
+\proj{Y}\z = \argmin_{\y\in Y} \ltwo{\y-\z}
+\end{equation}
+And finally, for any operator $A$ and set $Y$, let the set $AY = \{A\y : \y \in Y\}$.
+Using this notation, our goal is to bound
+$
+\ltwo{\w-\proj{AH_m}\w}
+$.
+%Finally, if $U$ is a vector space, we denote the orthogonal complement by $\comp U$.
+
+To warm up, we first consider the less general case where $\w$ is the origin.
+When $m=1$,
+the space $H_1$ is a single point,
+so the problem is equivalent to bounding the norm of a Gaussian random vector.
+The following lemma gives this bound.
 \begin{lemma}[\cite{hsu2012tail}]
 \label{lemma:hsu}
-Let $A \in \mathbb{R}^{n\times n}$ be a matrix,
-and let $\Sigma = \trans A A$.
-Let $\z$ be an isotropic multivariate Gaussian random vector with zero mean.
+Let $\z\in\mathbb{R}^d$ be an isotropic multivariate Gaussian random vector with zero mean.
 For all $t>0$,
 \begin{equation}
 \prob{\ltwo{A\z}^2 > \tr{\Sigma} + 2\sqrt{\tr (\Sigma^2)t} + 2\ltwo{\Sigma}t} \le e^{-t}
 \end{equation}
 \end{lemma}
-
-%We will use the following notation.
-%The affine hull of a set $Y$ is the set
-%\begin{equation}
-%\affspan{Y}=\left\{\sum_{i=1}^k \alpha_i\y_i : k>0, \alpha\in\mathbb{R},\y_i\in Y, \sum_{i=1}^k\alpha_i = 1 \right\}
-%\end{equation}
-%The projection of a vector $\z$ onto a set $Y$ is the vector
-%\begin{equation}
-%\proj{Y}\z = \argmin_{\y\in Y} \ltwo{\y-\z}
-%\end{equation}
-%If $A$ is an operator, then the set $AY = \{A\y : \y \in Y\}$.
-%Finally, if $U$ is a vector space, we denote the orthogonal complement by $\comp U$.
-
-%Our first result is a less general bound on the distance from the affine hull of $X$ to the origin.
-%The proof of this simpler theorem illustrates the main ideas of the more general case with fewer distracting technical details.
-
+\noindent
+For $m>1$, the idea is to reduce the problem to finding the norm of a Gaussian random variable in a low dimensional subspace,
+then apply Lemma \ref{lemma:hsu}.
+This strategy results in the following theorem.
 \begin{theorem}
 \label{thm:center}
-Let $A \in \mathbb{R}^{d\times d}$ be a matrix,
-and let $\Sigma = \trans A A$.
-Let $X=\{\x_1,...,\x_m\}$ be a sequence of $m>2$ random $d$-dimensional vectors sampled independently from the isotropic normal distribution,
-and let $H=\affspan X$.
-Let $B\in\mathbb{R}^{d\times d-m-2}$ be a matrix whose column space is the orthogonal complement of $\vecspan \{\x_1,...,\x_{m-1}\}$,
-and let $\Tau = \trans{[\trans B,\trans\w_m]}\Sigma[B,\w_m]$.
-Then for all $t>0$,
-\begin{equation}
-\label{eq:thm1a}
-\prob{\ltwo{\proj{AH}\zero}^2
->
-\tr \Tau + 2\sqrt{\tr \Tau t} + 2\ltwo{\Tau}t} \le e^{-t}
-\end{equation}
-Interpreting Equation \ref{eq:thm1a} is slightly tricky because $\Tau$ is a random variable.
-As an immediate consequence, we have the following easier to interpret, but less sharp bound.
-Denote by $\sigma_i$ the eigenvectors of $\Sigma$ in decreasing order.
+Define the matrix
+$
+B=
+\left(
+\comp X_{m-1}
+,
+\frac{\proj {H_{m-1}} \zero}{\ltwo {\proj {H_{m-1}} \zero}}
+\right)
+\in \mathbb{R}^{d\times d-m+2}
+$
+and
+$\Tau=\trans B \Sigma B$.
 For all $t>0$,
 \begin{equation}
-\prob{\ltwo{\proj{AH}\zero}^2 > \sum_{i=1}^{d-m-2}\sigma_i + 2\sqrt{\sum_{i=1}^{d-m-2}\sigma_i^2t} + 2\sigma_1t} \le e^{-t}
+\label{eq:thm1a}
+\prob{\ltwo{\proj{AH_m}\zero}^2
+>
+\tr \Tau + 2\sqrt{\tr \Tau t} + 2\ltwo{\Tau}t} \le e^{-t}
 \end{equation}
 \end{theorem}
 
 \noindent
 
-%\begin{proof}[Proof of Theorem \ref{thm:center}]
 \begin{proof}
-The idea is to construct an isotropic normal random vector $\z$ of dimension $d-m-2$ such that $\ltwo{\proj{AH}\zero} \le \ltwo {A\z} $.
-%(The dimension of $\z$ is why we need the $d>m>2$ restriction.)
-%Then apply the following lemma to bound $\ltwo {A\z}$.
-Then apply Lemma $\ref{lemma:hsu}$ to $\z$.
+We will first construct a random vector $\z$ such that $\ltwo{\proj{AH_m}\zero} \le \ltwo {A\z} $.
+Then we will show that $\z$ has the same distribution as $B\z'$,
+where $\z'\in\mathbb{R}^{d-m+2}$ is an isotropic normal distribution.
+The result follows by applying Lemma $\ref{lemma:hsu}$ to $B\z'$.
 
-Fix $\x_1,...,\x_{m-1}$.
-Let $G=\affspan\{\x_1,...,\x_{m-1}\}$ and $U=\vecspan G$.
 Define
 $
 \z
 =
-\x_m +\proj{G}\zero-\proj{G}\proj{U}\x_m
+\x_m +\proj{H_{m-1}}\zero-\proj{H_{m-1}}\proj{V_{m-1}}\x_m
 $.
-Since $G\subseteq H$, we have that the vector $\proj{G}\zero-\proj{G}\proj{U}\x_m\in H$,
-so $\z\in H$ and $A\z\in AH$.
-Then by the definition of $\proj{AH}$, we have that $\ltwo {\proj{AH}\zero}\le\ltwo{A\z}$.
+We have that $\z\in H_m$ because $\x_m\in H_m$ and $H_{m-1}\subseteq H_m$.
+Therefore $A\z \in AH_m$.
+Then by the definition of $\proj{}$,
+we have that $\ltwo {\proj{AH_m}\zero}\le\ltwo{A\z}$.
 
-To bound $\ltwo{A\z}$, we split $\z$ into two terms as $\z=\y+\proj{\comp U}\w_m$, where $\y=\proj{U}\x_m+\proj{G}\zero-\proj{G}\proj{U}\x_m$.
-By construction, we have that $\y\in\vecspan{\proj{G}\zero}$.
-The $\vecspan{\proj{G}\zero}$ is one dimensional, so $\y$ is distributed as a one dimensional standard Gaussian.
-We also have that $\proj{\comp U}\w_m$ is a $d-m-1$ dimensional isotropic Gaussian,
-and that $\proj{\comp U}\w_m$ is orthogonal to $\y$.
-Therefore, $\z$ is a $d-m+2$ dimensional isotropic Gaussian.
+Split $\z$ into two components $\z_1=\proj{\comp U}\x_m$ and $\z_2=\proj{U}\x_m+\proj{G}\zero-\proj{G}\proj{U}\x_m$.
+(Notice that $\z=\z_1+\z_2$.)
+Let $\z_1'$ be an isotropic normal random vector with $d-m+1$ dimensions;
+then the random vectors $\z_1$ and $\comp X_{m-1}\z_1'$ have the same distribution.
+Let $z_2$ be a standard normal random variable;
+then the vectors $\z_2$ and $\frac{\proj {H_{m-1}} \zero}{\ltwo{\proj {H_{m-1}} \zero}}z_2$ have the same distribution.
+The random vectors $\z_1$ and $\z_2$ are not independent,
+but they are orthogonal and their lengths are independent.
+Therefore
+$\z' =
+\begin{pmatrix}
+\z_1\\
+z_2
+\end{pmatrix}
+$
+is an isotropic random vector of dimension $d-m+2$.
 \end{proof}
-
-%\begin{proof}[Proof of Theorem \ref{thm:center}]
-%Fix $\x_1,...,\x_{m-1}$.
-%Let $G=\affspan\{A\x_1,...,A\x_{m-1}\}$,
-%$U=\vecspan G$,
-%and $U^*=\vecspan\{\proj{G}\zero\}\subseteq U$.
-%We have by construction that for any vector $\x\in U-G$,
-%the vector $\x-\proj{G}\x \in U^*$.
-%We also have that with probability 1, the vector $\proj{U}\x_m\in U-G$.
-%Therefore, the vector $\y=\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero \in U^*$.
-%%Define the vector $\y=\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero$.
-%%We have that $\prog{G}\proj{U}\x_m=
-%%The space $U^*$ is one dimensional, so $\y$ is distributed as a univariate normal distribution.
-%The vector $\y$ is a linear combination of zero-mean Gaussian random variables,
-%so $\y$ is also a zero-mean Gaussian random variable.
-%In particular, since $U^*$ is a one dimensional space,
-%$\y$ is distributed as a univariate zero-mean Gaussian.
-%%In particular, since $U^*$ is the one dimensional subspace spanned by $\proj{G}\zero$,
-%%%we can write $\y=\alpha\frac{\proj{G}\zero}{\ltwo{\proj{G}\zero}}$ where
-%%we can write $\y=\alpha{\proj{G}\zero}/{\ltwo{\proj{G}\zero}}$ where
-%%$\alpha$ is a zero-mean univariate Gaussian.
-%
-%%Now define the vector $\z=\y+\proj{\comp U}\x_m$.
-%Now define the vector
-%\begin{align}
-%\z
-%& =
-%\y+\proj{\comp U}\x_m
-%\\
-%& =
-%\proj{U}\x_m-\proj{G}\proj{U}\x_m+\proj{G}\zero+\proj{\comp U}\x_m
-%\\
-%&=
-%\x_m -\proj{G}\proj{U}\x_m+\proj{G}\zero
-%\end{align}
-%Since $G\subseteq H$, we have that $\z\in H$.
-%Then by the definition of $\proj{H}$, we have that $\ltwo{\proj{H}\zero} \le \ltwo{\z}$.
-%Since the space $U^*$ is orthogonal to $\comp U$,
-%the vectors $y$ and $\proj{\comp U}\x_m$ are independent.
-%Since $\y$ is a one dimensional Gaussian,
-%and $\proj{\comp U}\x_m$ is $d-m+1$ dimensional Gaussian independent of $\y$,
-%$\z$ is a $d-m+2$ dimensional Gaussian.
-%The direction $\z/\ltwo \z$ is chosen uniformly from
-%\end{proof}
 
 \newpage
 
